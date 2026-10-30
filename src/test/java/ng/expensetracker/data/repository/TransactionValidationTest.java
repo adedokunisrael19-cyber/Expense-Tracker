@@ -41,6 +41,106 @@ class TransactionValidationTest {
 
         var violations = validator.validate(transaction);
 
-        assertThat(violations).isNotEmpty();
+        assertThat(violations)
+                .extracting(violation -> violation.getPropertyPath().toString())
+                .contains("amount");
     }
+
+
+    @Test
+    void shouldRejectAmountWithMoreThanTwoDecimalPlaces() {
+
+        Transaction transaction = new Transaction(
+                TransactionType.EXPENSE,
+                new BigDecimal("1500.567"),
+                "Invalid precision",
+                LocalDate.now(),
+                null
+        );
+
+        var violations = validator.validate(transaction);
+
+        assertThat(violations)
+                .extracting(violation -> violation.getPropertyPath().toString())
+                .contains("amount");
+    }
+
+    @Test
+    void shouldRejectZeroAmount() {
+
+        Transaction transaction = new Transaction(
+                TransactionType.EXPENSE,
+                BigDecimal.ZERO,
+                "Zero amount",
+                LocalDate.now(),
+                null
+        );
+
+        var violations = validator.validate(transaction);
+
+        assertThat(violations)
+                .extracting(violation -> violation.getPropertyPath().toString())
+                .contains("amount");
+    }
+
+
+    @Test
+    void shouldRejectNullTransactionType() {
+
+        Transaction transaction = new Transaction(
+                null,
+                new BigDecimal("5000.00"),
+                "Groceries",
+                LocalDate.now(),
+                null
+        );
+
+        var violations = validator.validate(transaction);
+
+        assertThat(violations)
+                .extracting(violation -> violation.getPropertyPath().toString())
+                .contains("type");
+    }
+
+
+    @Test
+    void shouldRejectDescriptionLongerThan500Characters() {
+
+        String longDescription = "a".repeat(501);
+
+        Transaction transaction = new Transaction(
+                TransactionType.EXPENSE,
+                new BigDecimal("5000.00"),
+                longDescription,
+                LocalDate.now(),
+                null
+        );
+
+        var violations = validator.validate(transaction);
+
+        assertThat(violations)
+                .extracting(violation -> violation.getPropertyPath().toString())
+                .contains("description");
+    }
+
+
+    @Test
+    void shouldRejectTransactionWithoutCategory() {
+
+        Transaction transaction = new Transaction(
+                TransactionType.EXPENSE,
+                new BigDecimal("5000.00"),
+                "Groceries",
+                LocalDate.now(),
+                null
+        );
+
+        var violations = validator.validate(transaction);
+
+        assertThat(violations)
+                .extracting(violation -> violation.getPropertyPath().toString())
+                .contains("category");
+    }
+
+
 }
