@@ -74,4 +74,23 @@ public class Transaction {
         this.deleted = false;
     }
 
+
+    public void updateDetails(
+            TransactionType type,
+            BigDecimal amount,
+            String description,
+            LocalDate transactionDate,
+            Category category
+    ) {
+        this.type = type;
+        this.amount = amount;
+        this.description = description;
+        this.transactionDate = transactionDate;
+        this.category = category;
+    }
+
+    public void softDelete() {
+        this.deleted = true;
+        this.deletedAt = Instant.now();
+    }
 }
